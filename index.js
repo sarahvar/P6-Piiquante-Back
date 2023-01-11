@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
 )
 
 const User = mongoose.model("User", userSchema)
+//Ne pas oublier de remettre la contrainte d'emails uniques".
 const sarah = new User({ name: "sarah", email : "devdas.l@laposte.net", password: "pouette" })
 sarah.save()
   .then(res => console.log("sarah enregistré !", res))

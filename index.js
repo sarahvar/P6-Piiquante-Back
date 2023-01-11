@@ -16,19 +16,12 @@ mongoose
   .catch((err) => console.error("Error connecting to Mongo", err));
 
 const userSchema = new mongoose.Schema({
-        name : String,
         email: String,
         password: String,
     }
 )
 
 const User = mongoose.model("User", userSchema)
-//Ne pas oublier de remettre la contrainte d'emails uniques".
-const sarah = new User({ name: "sarah", email : "devdas.l@laposte.net", password: "pouette" })
-sarah.save()
-  .then(res => console.log("sarah enregistré !", res))
-  .catch(err => console.log("sarah pas enregistré", err))
-console.log("sarah:", sarah)
 
 //Middleware
 
@@ -38,7 +31,15 @@ app.use(express.json());
 //Routes
 
 app.post("/api/auth/signup", (req, res) => {
-  console.log("Signup request:", req.body);
+  console.log("Signup request:", req.body)
+  const email = req.body.email
+  const password = req.body.password
+  //Ne pas oublier de remettre la contrainte d'emails uniques".
+const user = new User({ email: email, password: password })
+user.save()
+  .then(res => console.log("User enregistré !", res))
+  .catch(err => console.log("User pas enregistré", err))
+
   res.send({ message: "Utilisateur enregistré !" });
 });
 app.get("/", (req, res) => {

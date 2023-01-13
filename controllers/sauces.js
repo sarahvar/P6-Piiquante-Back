@@ -36,7 +36,8 @@ function handleToken(err, decoded, res){
 if (err) res.status(403).send({ message: "Token invalide" + err })
 else{
     console.log("token à l'air okay", decoded)
-    res.send({message: [{sauce: "sauce1"}, {sauce: "sauce1"} ]})
+    Product.find({}).then(products => res.send(products))
+    //res.send({message: [{sauce: "sauce1"}, {sauce: "sauce1"} ]})
 }
 }
 function createSauce(req, res) {

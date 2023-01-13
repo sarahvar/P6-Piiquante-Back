@@ -9,8 +9,7 @@ async function createUser(req, res) {
   const hashedPassword = await hashPassword(password);
   //Ne pas oublier de remettre la contrainte d'emails uniques mongoDB".
   const user = new User({ email, password: hashedPassword })
-  const savedUser = await user.save()
-  console.log("savedUser:", savedUser)
+  await user.save()
     res.status(201).send({ message: "Utilisateur enregistré !" })
   } catch (err){
     res.status(409).send({ message: "Utilisateur pas enregistré : " + err })
@@ -37,7 +36,7 @@ async function logUser(req, res) {
     res.status(200).send({ userId: user?._id, token: token })
   } catch (err) {
     console.error(err);
-    res.status(500).send({ messaga: "Une erreur interne" })
+    res.status(500).send({ message: "Une erreur interne" })
   }
 }
 

@@ -7,7 +7,6 @@ async function createUser(req, res) {
   const email = req.body.email
   const password = req.body.password
   const hashedPassword = await hashPassword(password);
-  //Ne pas oublier de remettre la contrainte d'emails uniques mongoDB".
   const user = new User({ email, password: hashedPassword })
   await user.save()
     res.status(201).send({ message: "Utilisateur enregistré !" })

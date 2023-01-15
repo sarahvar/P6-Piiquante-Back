@@ -29,7 +29,7 @@ function createSauce(req, res) {
     const name = req.body.name
     const manufacturer = req.body.manufacturer
     console.log({name, manufacturer})
-    
+
     const product = new Product({
     userId: "luna",
     name: "prudelle",

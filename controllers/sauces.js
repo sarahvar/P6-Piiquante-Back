@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const {unlink} = require("fs")
 
 const productSchema = new mongoose.Schema({
   userId: { type: String, required: true },
@@ -22,15 +23,27 @@ function getSauces(req, res) {
     .catch((error) => res.status(500).send(error));
 }
 
-async function getSauceById(req, res) {
-  try {
+function getSauceById(req, res) {
     const { id } = req.params;
-    const product = await Product.findById(id);
+    Product.findById(id)
+    .then ((product) => res.send(product))
+    .catch (console.error)
+}
 
-    res.send(product);
-  } catch (error) {
-    res.status(500).send(error);
-  }
+function deleteSauceById(req, res){
+    const {id} = req.params
+    Product.findByIdAndDelete(id)
+    .then (deleteImage)
+    .then(product => res.send({ message: product})) 
+    .catch(err => res.status(500).send({message: err}))
+}
+function deleteImage(product){
+const imageUrl = product.imageUrl
+const fileToDelete = imageUrl.split("/").at(-1)
+unlink(`images/${fileToDelete}`, (err) => {
+    console.error("Problème à la suppresion de l'image", err)
+})
+return product
 }
 
 function createSauce(req, res) {
@@ -71,4 +84,4 @@ function createSauce(req, res) {
     })
     .catch(console.error);
 }
-module.exports = { getSauces, createSauce, getSauceById };
+module.exports = { getSauces, createSauce, getSauceById, deleteSauceById };

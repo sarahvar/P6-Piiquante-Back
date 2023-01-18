@@ -8,14 +8,18 @@ const multer = require("multer");
 const { authenticateUser } = require("./middleware/auth");
 const storage = multer.diskStorage({
   destination: "images/",
-  filename: makeFilename,
+  filename: function (req, file, cb) {
+    cb(null, makeFilename(req, file));
+  },
 });
-const upload = multer({ storage: storage });
 
-function makeFilename(req, file, cb) {
-  cb(null, Date.now() + "-" + file.originalname);
+function makeFilename(req, file) {
+  const fileName = `${Date.now()}-${file.originalname}`.replace(/\s/g,"-")
+  file.fileName = fileName
+  return fileName
 }
 
+const upload = multer({ storage: storage });
 //Connection to Database
 require("./mongo");
 
@@ -27,8 +31,6 @@ const { getSauces, createSauce } = require("./controllers/sauces");
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(express.static("/images"));
-
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //Routes
@@ -39,4 +41,5 @@ app.post("/api/sauces", authenticateUser, upload.single("image"), createSauce);
 app.get("/", (req, res) => res.send("Hello World!"));
 
 //Listen port
+app.use("/images", express.static("images"));
 app.listen(port, () => console.log("Listening on port " + port));

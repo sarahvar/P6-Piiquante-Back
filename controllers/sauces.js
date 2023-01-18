@@ -24,8 +24,13 @@ function getSauces( req, res){
     //res.send({message: [{sauce: "sauce1"}, {sauce: "sauce1"} ]})
 }
 
+
 function createSauce(req, res) {
-    const sauce = JSON.parse(req.body.sauce)
+    const { body, file } = req
+    console.log ({ file })
+    const fileName = file.fileName
+
+    const sauce = JSON.parse(body.sauce)
 
     const userId = sauce.userId
     const name = sauce.name
@@ -33,11 +38,10 @@ function createSauce(req, res) {
     const description = sauce.description
     const mainPepper = sauce.mainPepper
     const heat = sauce.heat
-    console.log("sauce:", sauce)
-
-    console.log({ body: req.body.sauce })
-    console.log({ file: req.file})
-    const imageUrl = req.file.destination + req.file.filename
+    
+    function makeImageUrl(req, fileName){
+        return req.protocol + "://" + req.get("host")+ "/images/" + fileName
+    }
 
     const product = new Product({
     userId: userId,
@@ -45,7 +49,7 @@ function createSauce(req, res) {
     manufacturer: manufacturer,
     description: description,
     mainPepper: mainPepper,
-    imageUrl: imageUrl,
+    imageUrl: makeImageUrl(req, fileName),
     heat: heat,
     likes: 0,
     dislikes: 0,

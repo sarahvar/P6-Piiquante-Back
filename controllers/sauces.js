@@ -32,16 +32,21 @@ function getSauceById(req, res) {
 
 function deleteSauceById(req, res){
     const {id} = req.params
+// 1.L'ordre de suppression du produit est envoyé à Mongo
     Product.findByIdAndDelete(id)
-    .then (deleteImage)
+// 2. Supprimer l'image localement
+    .then(deleteImage)
+// 3. Envoyer un message de succès au client sur le site web
     .then(product => res.send({ message: product})) 
     .catch(err => res.status(500).send({message: err}))
 }
+
 function deleteImage(product){
 const imageUrl = product.imageUrl
 const fileToDelete = imageUrl.split("/").at(-1)
 unlink(`images/${fileToDelete}`, (err) => {
     console.error("Problème à la suppresion de l'image", err)
+    throw new Error("Problème à la suppression dee l'image" + err)
 })
 return product
 }

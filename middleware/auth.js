@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken")
 
 function authenticateUser(req, res, next){
-    console.log("utilisateur authentifier")
 const header = req.header("Authorization")
 if (header == null) return res.status(403).send({ message: "Invalide"})
 

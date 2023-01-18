@@ -17,10 +17,20 @@ const productSchema = new mongoose.Schema({
 const Product = mongoose.model("Product", productSchema);
 
 function getSauces(req, res) {
-  console.log("le token a été valider nous sommes dans les sauces");
-  //console.log("token à l'air okay", decoded)
-  Product.find({}).then((products) => res.send(products));
-  //res.send({message: [{sauce: "sauce1"}, {sauce: "sauce1"} ]})
+  Product.find({})
+    .then((products) => res.send(products))
+    .catch((error) => res.status(500).send(error));
+}
+
+async function getSauceById(req, res) {
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+
+    res.send(product);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 }
 
 function createSauce(req, res) {
@@ -55,7 +65,10 @@ function createSauce(req, res) {
   });
   product
     .save()
-    .then((res) => console.log("Produit enregistré", res))
+    .then((message) => {
+      res.status(201).send({ message: message });
+      return console.log("Produit enregistré", message);
+    })
     .catch(console.error);
 }
-module.exports = { getSauces, createSauce };
+module.exports = { getSauces, createSauce, getSauceById };

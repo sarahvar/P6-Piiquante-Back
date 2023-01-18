@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const port = 3000;
 const multer = require("multer");
 const { authenticateUser } = require("./middleware/auth");
+const path = require ("path") 
 const storage = multer.diskStorage({
   destination: "images/",
   filename: function (req, file, cb) {
@@ -41,5 +42,6 @@ app.post("/api/sauces", authenticateUser, upload.single("image"), createSauce);
 app.get("/", (req, res) => res.send("Hello World!"));
 
 //Listen port
-app.use("/images", express.static("images"));
+
+app.use("/images", express.static(path.join(__dirname, "images")));
 app.listen(port, () => console.log("Listening on port " + port));

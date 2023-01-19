@@ -1,3 +1,4 @@
+const { response } = require("express");
 const mongoose = require("mongoose");
 const unlink = require("fs").promises.unlink
 
@@ -48,19 +49,23 @@ function deleteImage(product) {
 }
 
 function modifySauce(req, res) {
-  const { body, file } = req
-  const sauce = JSON.parse(body.sauce)
-  const { name, manufacturer, description, mainPepper, heat, userId } = sauce
+  const { body} = req
   const { id } = req.params
-  console.log({ body, file })
-  Product.findByIdAndUpdate(id, {
-    name: name,
-    manufacturer: manufacturer,
-    description: description,
-    mainPepper: mainPepper,
-    heat: heat,
-    userId: userId,
-  });
+  console.log({ body})
+
+  Product.findByIdAndUpdate(id, body)
+  .then ((dbResponse) => handleUpDate (dbResponse, res))
+  .catch((err) => console.error("PROBLEME UPDATING", err))
+}
+
+function handleUpDate(dbResponse, res){
+
+  if ((dbResponse == null)){
+    console.log("NOTHING TO UPDATE")
+    res.status(404).send({ message: "Objet not found in database"})
+  }
+  console.log("ALL GOOD, UPDATING", dbResponse)
+  res.status(200).send({ message: "Successfully updated"})
 }
 
 function createSauce(req, res) {

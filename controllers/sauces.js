@@ -43,6 +43,7 @@ function deleteSauceById(req, res) {
 }
 
 function deleteImage(product) {
+  if (product == null) return
   const imageUrl = product.imageUrl;
   const fileToDelete = imageUrl.split("/").at(-1);
   return unlink(`images/${fileToDelete}`).then(() => product);
@@ -57,7 +58,7 @@ function modifySauce(req, res) {
 
   const hasNewImage = req.file != null
   const payload = makePayload(hasNewImage, req)
- 
+
   Product.findByIdAndUpdate(id, payload)
     .then((dbResponse) => handleUpDate(dbResponse, res))
     .catch((err) => console.error("PROBLEME UPDATING", err));

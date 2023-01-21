@@ -2,7 +2,7 @@ const { response } = require("express");
 const mongoose = require("mongoose");
 const unlink = require("fs").promises.unlink;
 
-const productSchema = new mongoose.Schema({
+const product = new mongoose.Schema({
   userId: { type: String, required: true },
   name: { type: String, required: true },
   manufacturer: { type: String, required: true },
@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema({
   usersDisliked: { type: [String] },
 });
 
-const Product = mongoose.model("Product", productSchema);
+const Product = mongoose.model("Product", product);
 
 function getSauces(req, res) {
   Product.find({})
@@ -43,34 +43,32 @@ function deleteSauceById(req, res) {
 }
 
 function deleteImage(product) {
-  if (product == null) return
+  if (product == null) return;
   const imageUrl = product.imageUrl;
   const fileToDelete = imageUrl.split("/").at(-1);
   return unlink(`images/${fileToDelete}`).then(() => product);
 }
 
 function modifySauce(req, res) {
-
   const { id } = req.params;
 
-  
-  console.log("req.file", req.file)
+  console.log("req.file", req.file);
 
-  const hasNewImage = req.file != null
-  const payload = makePayload(hasNewImage, req)
+  const hasNewImage = req.file != null;
+  const payload = makePayload(hasNewImage, req);
 
   Product.findByIdAndUpdate(id, payload)
     .then((dbResponse) => handleUpDate(dbResponse, res))
     .catch((err) => console.error("PROBLEME UPDATING", err));
 }
-function makePayload(hasNewImage, req){
-  console.log("hasNewImage", hasNewImage)
-  if (!hasNewImage) return req.body
- const payload = JSON.parse(req.body.sauce)
- payload.imageUrl = makeImageUrl(req, req.file.fileName)
- console.log("NOUVELLE IMAGE A GERER")
- console.log("voici le payload:", payload)
-  return payload
+function makePayload(hasNewImage, req) {
+  console.log("hasNewImage", hasNewImage);
+  if (!hasNewImage) return req.body;
+  const payload = JSON.parse(req.body.sauce);
+  payload.imageUrl = makeImageUrl(req, req.file.fileName);
+  console.log("NOUVELLE IMAGE A GERER");
+  console.log("voici le payload:", payload);
+  return payload;
 }
 
 function handleUpDate(dbResponse, res) {
@@ -99,7 +97,6 @@ function createSauce(req, res) {
   const heat = sauce.heat;
   const userId = sauce.userId;
 
-
   const product = new Product({
     userId: userId,
     name: name,
@@ -121,10 +118,78 @@ function createSauce(req, res) {
     })
     .catch(console.error);
 }
+function evaluateSauce(req, res) {
+  Product.findOne({ _id: req.params.id })
+    .then((sauce) => {
+      switch (req.body.like) {
+        // Si la sauce n'est pas aimée
+        case -1:
+          Product.updateOne(
+            { _id: req.params.id },
+            {
+              $inc: { dislikes: 1 },
+              $push: { usersDisliked: req.body.userId },
+              _id: req.params.id,
+            }
+          )
+            .then(() =>
+              res.status(201).json({
+                message: "Votre avis est bien pris en compte (dislike) !",
+              })
+            )
+            .catch((error) => res.status(400).json({ error }));
+          break;
+
+        case 0:
+          // Si la sauce n'est déjà pas aimée et que l'utilisateur veut retirer son dislike
+          if (sauce.usersDisliked.find((user) => user === req.body.userId)) {
+            Product.updateOne(
+              { _id: req.params.id },
+              {
+                $inc: { dislikes: -1 },
+                $pull: { usersDisliked: req.body.userId },
+                _id: req.params.id,
+              }
+            )
+              .then(() =>
+                res
+                  .status(201)
+                  .json({
+                    message: "Votre avis a bien été modifié (dislike retiré !)",
+                  })
+              )
+              .catch((error) => res.status(400).json({ error }));
+          }
+          break;
+
+        // Si la sauce est aimée
+        case 1:
+          Product.updateOne(
+            { _id: req.params.id },
+            {
+              $inc: { likes: 1 },
+              $push: { usersLiked: req.body.userId },
+              _id: req.params.id,
+            }
+          )
+            .then(() =>
+              res.status(201).json({
+                message: "Votre avis est bien pris en compte (like) !",
+              })
+            )
+            .catch((error) => res.status(400).json({ error }));
+          break;
+        default:
+          return res.status(500).json({ error });
+      }
+    })
+    .catch((error) => res.status(500).json({ error }));
+}
 module.exports = {
   getSauces,
   createSauce,
   getSauceById,
   deleteSauceById,
   modifySauce,
+  evaluateSauce,
 };

@@ -1,3 +1,4 @@
+//Permets de connecter mon projet à MongoDB avec mes identfiants 
 const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 const password = process.env.DB_PASSWORD;

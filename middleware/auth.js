@@ -1,5 +1,9 @@
-const jwt = require("jsonwebtoken");
+//MIDDLEWARE de /api/auth
 
+
+const jwt = require("jsonwebtoken")//Permets de créer et vérifier les tokens d'authentification
+
+//Fonction qui permets au serveur d'authoriser les requêtes de tous les headers (CORS)
 function authenticateUser(req, res, next) {
   const header = req.header("Authorization");
   if (header == null) return res.status(403).send({ message: "Invalide" });
@@ -15,4 +19,5 @@ function authenticateUser(req, res, next) {
   });
 }
 
+//Permets d'exporter authenticateUser
 module.exports = { authenticateUser };

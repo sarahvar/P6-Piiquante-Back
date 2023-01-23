@@ -1,7 +1,8 @@
-const { User } = require("../mongo");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const { User } = require("../mongo")
+const bcrypt = require("bcrypt")//Bibliothèque qui aide à hacher les MDP
+const jwt = require("jsonwebtoken")//Permets de créer et vérifier les tokens d'authentification
 
+//Création de l'utilisateur 
 async function createUser(req, res) {
   try {
     const email = req.body.email;
@@ -15,11 +16,14 @@ async function createUser(req, res) {
   }
 }
 
+//hachage du mot de passe
 function hashPassword(password) {
   const saltRounds = 10;
   return bcrypt.hash(password, saltRounds);
 }
 
+
+//enregistrement de l'utilisateur 
 async function logUser(req, res) {
   try {
     const email = req.body.email;
@@ -31,6 +35,7 @@ async function logUser(req, res) {
       res.status(403).send({ message: "Mot de passe incorrect" });
     }
 
+    //Statut de la requête par rapport au Token
     const token = createToken(email);
     res.status(200).send({ userId: user?._id, token: token });
   } catch (err) {
@@ -39,9 +44,12 @@ async function logUser(req, res) {
   }
 }
 
+//Création d'un Token une fois l'adresse mail valider
 function createToken(email) {
   const jwtPassword = process.env.JWT_PASSWORD;
   return jwt.sign({ email: email }, jwtPassword, { expiresIn: "24h" });
 }
 
+
+//Exporter createUser et logUser
 module.exports = { createUser, logUser };

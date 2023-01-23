@@ -1,10 +1,11 @@
+//La fonction 'require' permt d'exécuter les modules :
 const { app, express } = require("./server");
 const { saucesRouter } = require("./routers/sauces.router");
 const { authRouter } = require("./routers/auth.router");
 const port = 3000;
 const path = require("path");
 
-//Connection to Database
+//Connection to Database avec le fichier mongo 
 require("./mongo");
 
 //Middleware

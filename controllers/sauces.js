@@ -1,7 +1,9 @@
-const { response } = require("express");
-const mongoose = require("mongoose");
-const unlink = require("fs").promises.unlink;
+//Permets d'executer express, mongoose et fs
+const { response } = require("express"); //Un framework de NodeJS
+const mongoose = require("mongoose"); //Sert à utiliser MongoDB
+const unlink = require("fs").promises.unlink; //créer et gérer des fichiers pour les stocker ou les lire dans un programme Node
 
+//Produit Schema structure
 const product = new mongoose.Schema({
   userId: { type: String, required: true },
   name: { type: String, required: true },
@@ -18,12 +20,15 @@ const product = new mongoose.Schema({
 
 const Product = mongoose.model("Product", product);
 
+
+//Afficher toutes les sauces
 function getSauces(req, res) {
   Product.find({})
     .then((products) => res.send(products))
     .catch((error) => res.status(500).send(error));
 }
 
+//Avoir la sauce grâce à son ID
 function getSauceById(req, res) {
   const { id } = req.params;
   Product.findById(id)
@@ -31,6 +36,7 @@ function getSauceById(req, res) {
     .catch(console.error);
 }
 
+//Supprimer une sauce grâce à son ID
 function deleteSauceById(req, res) {
   const { id } = req.params;
   // 1.L'ordre de suppression du produit est envoyé à Mongo
@@ -42,6 +48,7 @@ function deleteSauceById(req, res) {
     .catch((err) => res.status(500).send({ message: err }));
 }
 
+//Supprimer une image
 function deleteImage(product) {
   if (product == null) return;
   const imageUrl = product.imageUrl;
@@ -49,6 +56,7 @@ function deleteImage(product) {
   return unlink(`images/${fileToDelete}`).then(() => product);
 }
 
+//Modifier une image
 function modifySauce(req, res) {
   const { id } = req.params;
 
@@ -61,6 +69,8 @@ function modifySauce(req, res) {
     .then((dbResponse) => handleUpDate(dbResponse, res))
     .catch((err) => console.error("PROBLEME UPDATING", err));
 }
+
+//Faire le Payload pour modifier le produit
 function makePayload(hasNewImage, req) {
   console.log("hasNewImage", hasNewImage);
   if (!hasNewImage) return req.body;
@@ -71,6 +81,7 @@ function makePayload(hasNewImage, req) {
   return payload;
 }
 
+//Quand on update, on renvoi le code status et un message
 function handleUpDate(dbResponse, res) {
   if (dbResponse == null) {
     console.log("NOTHING TO UPDATE");
@@ -80,10 +91,12 @@ function handleUpDate(dbResponse, res) {
   res.status(200).send({ message: "Successfully updated" });
 }
 
+//Mettre une image
 function makeImageUrl(req, fileName) {
   return req.protocol + "://" + req.get("host") + "/images/" + fileName;
 }
 
+//Créer une sauce
 function createSauce(req, res) {
   const { body, file } = req;
   const fileName = file.fileName;
@@ -97,6 +110,8 @@ function createSauce(req, res) {
   const heat = sauce.heat;
   const userId = sauce.userId;
 
+
+  //Ajout d'un nouveau d'un produit avec son image
   const product = new Product({
     userId: userId,
     name: name,
@@ -201,7 +216,7 @@ function evaluateSauce(req, res) {
     })
     .catch((error) => res.status(500).json({ error }));
 }
-
+//Permet d'exporter les modules suivants :
 module.exports = {
   getSauces,
   createSauce,

@@ -1,6 +1,0 @@
-
-GET http://localhost:3000/api/sauces
-Authorization: 
-###
-
-POST http://localhost:3000/api/auth/signup
